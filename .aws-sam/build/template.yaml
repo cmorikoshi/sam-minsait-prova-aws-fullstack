@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: sam-minsait-prova-aws-fullstack
+Transform:
+- AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  amplifyMinsaitProvaAwsFullStack:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 60
+      CodeUri: amplifyMinsaitProvaAwsFullStack
+      Policies:
+      - Statement:
+        - Effect: Allow
+          Action:
+          - amplify:CreateApp
+          - amplify:CreateBranch
+          - amplify:StartDeployment
+          Resource: '*'
+    Metadata:
+      SamResourceId: amplifyMinsaitProvaAwsFullStack
+Outputs:
+  amplifyMinsaitProvaAwsFullStackFunction:
+    Description: Lambda function to create an AWS Amplify App
+    Value:
+      Fn::GetAtt:
+      - amplifyMinsaitProvaAwsFullStack
+      - Arn

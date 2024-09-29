@@ -1,40 +1,199 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: >-
-  sam-minsait-prova-aws-fullstack
+Description: sam-minsait-prova-conclusao-aws-fullstack
 Transform:
-- AWS::Serverless-2016-10-31
-
+  - AWS::Serverless-2016-10-31
 Globals:
   Function:
     LoggingConfig:
       LogFormat: JSON
-
 Resources:
-  AmplifyAppLambda:
-    Type: AWS::Serverless::Function
+  #########################################################
+  ##                  VPC
+  #########################################################
+  samMinsaitProvaVPC:
+    Type: "AWS::EC2::VPC"
+    Properties: 
+      CidrBlock: "192.168.0.0/16"
+      Tags:
+        - Key: "Name"
+          Value: "AWS SAM VPC"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+  #########################################################
+  ##              INTERNET GATEWAY
+  #########################################################
+        
+  samMinsaitProvaIGW:
+    Type: "AWS::EC2::InternetGateway"
     Properties:
-      Handler: index.handler
-      Runtime: nodejs20.x
-      Timeout: 60
-      CodeUri: ./src
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - amplify:CreateApp
-                - amplify:CreateBranch
-                - amplify:StartDeployment
-              Resource: '*'
-  # helloFromLambdaFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Handler: src/handlers/hello-from-lambda.helloFromLambdaHandler
-  #     Runtime: nodejs20.x
-  #     Architectures:
-  #     - x86_64
-  #     MemorySize: 128
-  #     Timeout: 100
-  #     Description: A Lambda function that returns a static string.
-  #     Policies:
-  #     - AWSLambdaBasicExecutionRole
+      Tags:
+        - Key: "Name"
+          Value: "AWS SAM IGW"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+        
+  VPCGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties: 
+      VpcId: !Ref samMinsaitProvaVPC
+      InternetGatewayId: !Ref samMinsaitProvaIGW
+
+  #########################################################
+  ##                  SUBNET
+  #########################################################
+        
+  samMinsaitProvaSubnetPublicA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref samMinsaitProvaVPC
+      CidrBlock: "192.168.0.0/24"
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: "Name"
+          Value: "Public A"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+          
+  samMinsaitProvaSubnetPublicB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref samMinsaitProvaVPC
+      CidrBlock: "192.168.1.0/24"
+      AvailabilityZone: !Sub ${AWS::Region}b
+      Tags:
+        - Key: "Name"
+          Value: "Public B"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+          
+  samMinsaitProvaSubnetPrivateA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref samMinsaitProvaVPC
+      CidrBlock: "192.168.2.0/24"
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: "Name"
+          Value: "Private A"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+          
+  samMinsaitProvaSubnetPrivateB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref samMinsaitProvaVPC
+      CidrBlock: "192.168.3.0/24"
+      AvailabilityZone: !Sub ${AWS::Region}b
+      Tags:
+        - Key: "Name"
+          Value: "Private B"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+
+  #########################################################
+  ##                  ROUTE TABLE
+  #########################################################
+          
+  samMinsaitProvaRouteTablePublic:
+    Type: "AWS::EC2::RouteTable"
+    Properties: 
+      VpcId: !Ref samMinsaitProvaVPC
+      Tags:
+        - Key: "Name"
+          Value: "AWS SAM Public"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+          
+  samMinsaitProvaRouteTablePrivate:
+    Type: "AWS::EC2::RouteTable"
+    Properties: 
+      VpcId: !Ref samMinsaitProvaVPC
+      Tags:
+        - Key: "Name"
+          Value: "AWS SAM Private"
+        - Key: "Service"
+          Value: "Curso AWS SAM"
+        - Key: "Environment"
+          Value: "Dev"
+        - Key: "Managedby"
+          Value: "AWS SAM"
+        - Key: "Owner"
+          Value: "Celio Morikoshi"
+
+  samMinsaitProvaRoutePublic:
+    Type: "AWS::EC2::Route"
+    Properties: 
+      RouteTableId: !Ref samMinsaitProvaRouteTablePublic
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref samMinsaitProvaIGW
+
+  #########################################################
+  ##           ROUTE TABLE ASSOCIATION
+  #########################################################
+      
+  samMinsaitProvaRouteTableAssociationPublicA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      SubnetId: !Ref samMinsaitProvaSubnetPublicA
+      RouteTableId: !Ref samMinsaitProvaRouteTablePublic
+      
+  samMinsaitProvaRouteTableAssociationPublicB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      SubnetId: !Ref samMinsaitProvaSubnetPublicB
+      RouteTableId: !Ref samMinsaitProvaRouteTablePublic
+      
+  samMinsaitProvaRouteTableAssociationPrivateA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      SubnetId: !Ref samMinsaitProvaSubnetPrivateA
+      RouteTableId: !Ref samMinsaitProvaRouteTablePrivate
+      
+  samMinsaitProvaRouteTableAssociationPrivateB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      SubnetId: !Ref samMinsaitProvaSubnetPrivateB
+      RouteTableId: !Ref samMinsaitProvaRouteTablePrivate
 
